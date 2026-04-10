@@ -1,0 +1,9 @@
+# GonnaCry v2.0 - Modernized Dependencies
+# Uses pycryptodome instead of deprecated pycrypto
+
+pycryptodome>=3.19.0
+requests>=2.31.0
+
+# Optional: for enhanced security testing
+# pytest>=7.4.0
+# pytest-cov>=4.1.0
