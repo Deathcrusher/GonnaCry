@@ -1,89 +1,251 @@
-# GonnaCry Ransomware
+# GonnaCry v2.0 - Modernized EDR Testing Tool
 
-Original Repository of the GonnaCry Ransomware.
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Security Research](https://img.shields.io/badge/purpose-security%20research-red.svg)]()
 
-GonnaCry is a linux ransomware that encrypts all the user files with a strong encryption scheme.
+**Modernized Linux Ransomware for EDR/Security Testing** - Educational security research tool designed to help test and validate Endpoint Detection and Response (EDR) systems.
 
-This project is OpenSource, feel free to use, study and/or send pull request.
+## ⚠️ Disclaimer
 
+**This tool is for EDUCATIONAL PURPOSES ONLY.** 
 
-[![Travis branch](https://img.shields.io/travis/rust-lang/rust/master.svg)](https://github.com/tarcisio-marinho/GonnaCry)
-[![Travis branch](https://img.shields.io/cran/l/devtools.svg)](https://github.com/tarcisio-marinho/GonnaCry/blob/master/LICENSE)
-[![Travis branch](https://img.shields.io/badge/made%20with-%3C3-red.svg)](https://github.com/tarcisio-marinho/GonnaCry)
-[![Travis branch](https://img.shields.io/github/stars/tarcisio-marinho/GonnaCry.svg)](https://github.com/tarcisio-marinho/GonnaCry/stargazers)
-    
--------------
+- Must NOT be used to harm, threaten, or hurt other people's computers
+- Only use in isolated test environments you own or have explicit permission to test
+- Purpose is to share knowledge and awareness about malware, cryptography, and security
+- The authors are not responsible for any misuse of this software
 
-**Ransomware Impact on industry**
+## 🎯 Objectives
 
-https://medium.com/@tarcisioma/how-can-a-malware-encrypt-a-company-existence-c7ed584f66b3
+GonnaCry v2.0 helps security professionals and researchers:
+- Test EDR detection capabilities
+- Validate IOC (Indicators of Compromise) detection
+- Simulate ransomware TTPs (Tactics, Techniques, and Procedures)
+- Understand modern encryption schemes used in ransomware
+- Train security teams on ransomware response
 
-**How this ransomware encryption scheme works:**
+## ✨ Features
 
-https://medium.com/@tarcisioma/ransomware-encryption-techniques-696531d07bb9
+### Modern Encryption
+- **AES-256-CBC** for file encryption with random IV per file
+- **RSA-2048** for secure key exchange using OAEP padding
+- Unique AES key generated for each file
+- Secure key management with metadata storage
 
+### Safety First
+- **Test Mode**: Safely encrypts only designated test directories
+- **Safe Mode**: Prevents encryption of critical system directories (`/bin`, `/etc`, `/usr`, etc.)
+- **Environment Variables**: Easy configuration without code changes
+- **Explicit Overrides**: Dangerous operations require explicit flags
 
-**How this ransomware works:**
+### EDR Testing Features
+- **IOC Markers**: `.GNCRY` file extension for easy detection
+- **Ransom Notes**: `README_DECRYPT.txt` files created in encrypted directories
+- **Logging**: Comprehensive logging for analysis
+- **Metadata Files**: Encryption metadata stored for decryption testing
 
-https://0x00sec.org/t/how-ransomware-works-and-gonnacry-linux-ransomware/4594
+### Cross-Platform Ready
+- Currently supports **Linux** 
+- Modular architecture designed for future Windows/macOS support
+- Pure Python implementation (pycryptodome)
 
-https://medium.com/@tarcisioma/how-ransomware-works-and-gonnacry-linux-ransomware-17f77a549114
+## 📦 Installation
 
+### Requirements
+- Python 3.8+
+- pycryptodome library
 
-**Mentions:**
+### Setup
+```bash
+# Clone repository
+cd /workspace
 
-https://www.sentinelone.com/blog/sentinelone-detects-prevents-wsl-abuse/
+# Install dependencies
+pip install pycryptodome
 
-https://hackingvision.com/2017/07/18/gonnacry-linux-ransomware/
+# Verify installation
+cd src/GonnaCry
+python3 -c "from core.crypto import *; print('✓ Cryptography module OK')"
+```
 
-https://www.youtube.com/watch?v=gSfa2L158Uw
+## 🚀 Usage
 
--------------
+### Quick Start - Test Mode (Recommended)
 
-# Disclaimer
+Test mode is the safest way to experiment. It only encrypts files in a designated test directory:
 
-This Ransomware mustn't be used to harm/threat/hurt other person's computer.
+```bash
+# Run in test mode (creates test files automatically)
+cd src/GonnaCry
+GONNACRY_TEST_MODE=true python3 main.py --test
 
-Its purpose is only to share knowledge and awareness about Malware/Cryptography/Operating Systems/Programming.
+# Or using environment variable
+export GONNACRY_TEST_MODE=true
+python3 main.py --test
+```
 
-GonnaCry is an academic ransomware made for learning and awareness about security/cryptography.
+### Encrypt Specific Directory
 
-**Be aware running C/bin/GonnaCry or Python/GonnaCry/main.py Python/GonnaCry/bin/gonnacry in your computer, it may harm.**
+```bash
+# Encrypt a specific directory (with safety checks)
+python3 main.py --directory /path/to/test/files
 
--------------
+# With recursive search (default)
+python3 main.py -d /path/to/test/files -r
+```
 
-# What's a Ransomware?
+### Decrypt Files
 
-A ransomware is a type of malware that prevents legitimate users from accessing
-their device or data and asks for a payment in exchange for the stolen functionality.
-They have been used for mass extortion in various forms, but the
-most successful one seems to be encrypting ransomware: most of the user data are
-encrypted and the key can be obtained paying the attacker.
-To be widely successful a ransomware must fulfill three properties:
+```bash
+# Decrypt files using saved metadata
+python3 main.py --decrypt --directory /path/to/encrypted/files
+```
 
-**Property 1**: The hostile binary code must not contain any secret (e.g. deciphering
-keys). At least not in an easily retrievable form, indeed white box cryptography
-can be applied to ransomware.
+### Advanced Options
 
-**Property 2**: Only the author of the attack should be able to decrypt the
-infected device.
+```bash
+# Show all options
+python3 main.py --help
 
-**Property 3**: Decrypting one device can not provide any useful information
-for other infected devices, in particular the key must not be shared among them.
+# Disable safety checks (DANGEROUS - only in isolated VM!)
+python3 main.py --directory /path --no-safety
 
--------------
+# Custom test directory
+GONNACRY_TEST_DIR=/custom/test/path python3 main.py --test
 
-# Objectives:
+# Debug logging
+GONNACRY_LOG_LEVEL=DEBUG python3 main.py --test
+```
 
-- [x] encrypts all user files with AES-256-CBC.
-- [x] Random AES key and IV for each file.
-- [x] Works even without internet connection.
-- [x] Communication with the server to decrypt Client-private-key.
-- [x] encrypts AES key with client-public-key RSA-2048.
-- [x] encrypts client-private-key with RSA-2048 server-public-key.
-- [x] Changes computer wallpaper -> Gnome, LXDE, KDE, XFCE.
-- [x] Decryptor that communicate to server to send keys.
-- [x] python webserver
-- [x] Daemon
-- [ ] Dropper
-- [x] Kills databases
+## 🔧 Configuration
+
+### Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `GONNACRY_TEST_MODE` | `false` | Enable test mode (safe) |
+| `GONNACRY_TEST_DIR` | `./tests/test_files` | Test directory path |
+| `GONNACRY_SAFE_MODE` | `true` | Enable safety checks |
+| `GONNACRY_LOG_LEVEL` | `INFO` | Logging level (DEBUG, INFO, WARNING, ERROR) |
+| `GONNACRY_LOG_FILE` | `./gonnacry.log` | Log file path |
+
+### Supported File Extensions
+
+The tool targets common user files:
+- Documents: `.txt`, `.doc`, `.docx`, `.pdf`, `.xls`, `.xlsx`
+- Images: `.jpg`, `.jpeg`, `.png`, `.gif`, `.bmp`
+- Media: `.mp3`, `.mp4`, `.avi`, `.mkv`
+- Archives: `.zip`, `.rar`, `.7z`, `.tar`, `.gz`
+- Code: `.py`, `.js`, `.html`, `.css`, `.cpp`, `.java`
+- Databases: `.db`, `.sql`, `.sqlite`
+
+## 🛡️ EDR Detection Points
+
+Use GonnaCry to test these detection vectors:
+
+### File System IOCs
+- New files with `.GNCRY` extension
+- `README_DECRYPT.txt` ransom notes
+- Rapid file modifications
+- Unusual file entropy changes
+
+### Process Behavior
+- Python processes accessing multiple user files
+- Cryptographic API usage patterns
+- File deletion after encryption
+- Metadata file creation
+
+### Network (Future)
+- RSA key exchange attempts
+- C2 communication patterns
+- Unusual outbound connections
+
+## 📁 Project Structure
+
+```
+src/GonnaCry/
+├── main.py              # Main entry point
+├── config/
+│   ├── __init__.py
+│   └── settings.py      # Configuration & environment variables
+├── core/
+│   ├── __init__.py
+│   └── crypto.py        # AES-256 & RSA-2048 encryption
+├── utils/
+│   ├── __init__.py
+│   └── file_ops.py      # File operations & safety checks
+├── tests/
+│   └── test_files/      # Safe test directory
+└── gonnacry.log         # Runtime logs
+```
+
+## 🧪 Testing Workflow
+
+### 1. Prepare Test Environment
+```bash
+# Create test directory
+mkdir -p /tmp/gonnacry_test
+echo "Important document" > /tmp/gonnacry_test/document.txt
+echo "Secret data" > /tmp/gonnacry_test/secrets.docx
+```
+
+### 2. Run Encryption Test
+```bash
+cd src/GonnaCry
+python3 main.py --directory /tmp/gonnacry_test
+```
+
+### 3. Verify EDR Detection
+Check your EDR console for:
+- File encryption alerts
+- IOC matches (`.GNCRY` extension)
+- Suspicious process behavior
+
+### 4. Decrypt and Recover
+```bash
+python3 main.py --decrypt --directory /tmp/gonnacry_test
+```
+
+### 5. Analyze Logs
+```bash
+cat gonnacry.log
+```
+
+## 🔐 How Encryption Works
+
+1. **Key Generation**: RSA-2048 key pair generated per session
+2. **File Encryption**: Each file gets unique AES-256-CBC key
+3. **Key Wrapping**: AES keys encrypted with RSA public key
+4. **Metadata Storage**: Encrypted keys + RSA private key saved locally
+5. **Secure Deletion**: Original files securely overwritten
+
+In a real attack scenario, the RSA private key would be sent to a C2 server. For testing, it's stored in metadata files.
+
+## 📚 Educational Resources
+
+- [How Ransomware Works](https://0x00sec.org/t/how-ransomware-works-and-gonnacry-linux-ransomware/4594)
+- [Encryption Techniques](https://medium.com/@tarcisioma/ransomware-encryption-techniques-696531d07bb9)
+- [Industry Impact](https://medium.com/@tarcisioma/how-can-a-malware-encrypt-a-company-existence-c7ed584f66b3)
+
+## 🤝 Contributing
+
+Contributions welcome! Areas for improvement:
+- Windows and macOS support
+- Additional encryption modes
+- More realistic TTP simulation
+- Enhanced EDR evasion techniques (for research)
+- Automated testing frameworks
+
+## 📄 License
+
+MIT License - See LICENSE file for details
+
+## 🙏 Acknowledgments
+
+Original GonnaCry project by [Tarcisio Marinho](https://github.com/tarcisio-marinho/GonnaCry)
+
+Modernized for educational purposes to help security professionals better understand and defend against ransomware threats.
+
+---
+
+**Remember**: Use responsibly and only in authorized test environments!
